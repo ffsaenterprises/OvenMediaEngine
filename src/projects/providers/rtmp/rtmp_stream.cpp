@@ -304,7 +304,13 @@ namespace pvd
 			pair = object->GetPair("app", AmfTypeMarker::String);
 			if (pair != nullptr)
 			{
-				_app_name = pair->property.GetString();
+				_app_name	  = pair->property.GetString();
+
+				auto seprator = _app_name.IndexOf('/');
+				if (seprator >= 0)
+				{
+					_app_name = _app_name.Substring(0, seprator);
+				}
 			}
 
 			// app url set
