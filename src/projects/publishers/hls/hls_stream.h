@@ -149,4 +149,8 @@ private:
 	std::shared_mutex _dumps_lock;
 
 	bool _ready_to_play = false; // true if the stream is ready to play, all playlists are ready and have enough segments
+
+
+	bool CreateOriginSessionPool();
+	bool _origin_mode = true;
 };

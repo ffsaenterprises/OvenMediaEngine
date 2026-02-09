@@ -465,7 +465,7 @@ namespace pub
 			return nullptr;
 		}
 
-		return _sessions[id];
+		return _sessions.at(id);
 	}
 
 	const std::map<session_id_t, std::shared_ptr<Session>> Stream::GetAllSessions()

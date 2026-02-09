@@ -44,10 +44,35 @@ ov::String LLHlsStream::GetStreamId() const
 	return ov::String::FormatString("llhls/%s", GetUri().CStr());
 }
 
+bool LLHlsStream::CreateOriginSessionPool()
+{
+	if (_origin_mode == false)
+	{
+		return false;
+	}
+
+	size_t max_pool_size = _worker_count == 0 ? 1 : _worker_count;
+
+	// Create sessions up to _worker_count
+	for (size_t i = 0; i < max_pool_size; i++)
+	{
+		auto session = LLHlsSession::Create(static_cast<session_id_t>(i),
+											_origin_mode,
+											"",
+											GetApplication(),
+											pub::Stream::GetSharedPtr(),
+											0);
+		logtd("LLHlsStream(%s/%s) - Pre-created origin mode session in pool, session id: %zu", GetApplication()->GetVHostAppName().CStr(), GetName().CStr(), i);
+		AddSession(session);
+	}
+
+	return true;
+}
+
 std::shared_ptr<LLHlsSession> LLHlsStream::GetSessionFromPool()
 {
 	// Max session pool size if _worker_count
-	size_t max_pool_size = _worker_count;
+	size_t max_pool_size = _worker_count == 0 ? 1 : _worker_count;
 	
 	// Get random index
 	size_t index = ov::Random::GenerateUInt32() % max_pool_size;
@@ -55,19 +80,12 @@ std::shared_ptr<LLHlsSession> LLHlsStream::GetSessionFromPool()
 	auto session = GetSession(static_cast<session_id_t>(index));
 	if (session == nullptr)
 	{
-		// create
-		session = LLHlsSession::Create(static_cast<session_id_t>(index),
-										_origin_mode,
-										"",
-										GetApplication(),
-										pub::Stream::GetSharedPtr(),
-										0);
-		logtd("LLHlsStream(%s/%s) - Created origin mode session from pool, session id: %zu", GetApplication()->GetVHostAppName().CStr(), GetName().CStr(), index);
-		AddSession(session);
+		return nullptr;
 	}
 
 	return std::static_pointer_cast<LLHlsSession>(session);
 }
+
 
 std::shared_ptr<const pub::Stream::DefaultPlaylistInfo> LLHlsStream::GetDefaultPlaylistInfo() const
 {
@@ -94,6 +112,15 @@ bool LLHlsStream::Start()
 	if (CreateStreamWorker(_worker_count) == false)
 	{
 		return false;
+	}
+
+	if (_origin_mode == true)
+	{
+		if (CreateOriginSessionPool() == false)
+		{
+			logte("LLHlsStream(%s/%s) - Failed to create origin session pool", GetApplication()->GetVHostAppName().CStr(), GetName().CStr());
+			return false;
+		}
 	}
 
 	auto config = GetApplication()->GetConfig();
