@@ -101,7 +101,7 @@ namespace ov
 			return false;
 		}
 
-		logat("Trying to create new socket (type: %d)...", type);
+		logat("Trying to create new socket (type: %d)...", ToUnderlyingType(type));
 
 		switch (type)
 		{
@@ -170,8 +170,14 @@ namespace ov
 
 		// An error occurred - reset all variables
 		{
+			SocketState state;
+			{
+				std::lock_guard lock_guard(_state_mutex);
+				state = _state;
+			}
+
 			std::lock_guard lock_guard(_dispatch_queue_lock);
-			if (CloseInternal(_state))
+			if (CloseInternal(state))
 			{
 				SetState(SocketState::Closed);
 			}
@@ -225,7 +231,7 @@ namespace ov
 				break;
 
 			default:
-				OV_ASSERT(false, "Invalid socket type: %d", GetType());
+				OV_ASSERT(false, "Invalid socket type: %d", ToUnderlyingType(GetType()));
 				return false;
 		}
 
@@ -453,7 +459,7 @@ namespace ov
 			}
 
 			default:
-				OV_ASSERT(false, "Invalid socket type: %d", GetType());
+				OV_ASSERT(false, "Invalid socket type: %d", ToUnderlyingType(GetType()));
 				return false;
 		}
 
@@ -495,7 +501,7 @@ namespace ov
 			}
 
 			default:
-				OV_ASSERT(false, "Invalid socket type: %d", GetType());
+				OV_ASSERT(false, "Invalid socket type: %d", ToUnderlyingType(GetType()));
 				break;
 		}
 
@@ -537,7 +543,7 @@ namespace ov
 			}
 
 			default:
-				OV_ASSERT(false, "Invalid socket type: %d", GetType());
+				OV_ASSERT(false, "Invalid socket type: %d", ToUnderlyingType(GetType()));
 				break;
 		}
 
@@ -782,16 +788,19 @@ namespace ov
 
 	bool Socket::IsClosable() const
 	{
-		return CheckFlag(_state, SOCKET_STATE_CLOSABLE);
+		return CheckFlag(GetState(), SOCKET_STATE_CLOSABLE);
 	}
 
 	SocketState Socket::GetState() const
 	{
+		std::lock_guard lock_guard(_state_mutex);
 		return _state;
 	}
 
 	void Socket::SetState(SocketState state)
 	{
+		std::lock_guard lock_guard(_state_mutex);
+
 		logat("Socket state is changed: %s => %s",
 			  StringFromSocketState(_state),
 			  StringFromSocketState(state));
@@ -1166,7 +1175,7 @@ namespace ov
 				}
 
 				STATS_COUNTER_INCREASE_ERROR();
-				logaw("Could not send data: %zd (%s)", sent, SrtError::CreateErrorFromSrt()->What());
+				logaw("Could not send data: %d (%s)", sent, SrtError::CreateErrorFromSrt()->What());
 				return sent;
 			}
 
@@ -2188,7 +2197,7 @@ namespace ov
 		return String::FormatString(
 			"<%s: %p, #%d, %s, %s, %s%s>",
 			class_name, this,
-			GetNativeHandle(), StringFromSocketState(_state),
+			GetNativeHandle(), StringFromSocketState(GetState()),
 			StringFromSocketType(GetType()),
 			StringFromBlockingMode(_blocking_mode),
 			extra.CStr());
