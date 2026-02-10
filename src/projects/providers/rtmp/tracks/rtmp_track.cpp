@@ -41,7 +41,7 @@ namespace pvd::rtmp
 		return nullptr;
 	}
 
-	const info::NamePath &RtmpTrack::GetNamePath() const
+	info::NamePath RtmpTrack::GetNamePath() const
 	{
 		return _stream->GetNamePath();
 	}
