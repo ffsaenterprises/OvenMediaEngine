@@ -822,11 +822,9 @@ namespace pvd::rtmp
 
 				return false;
 			}
-
-			return _stream->PostPublish(document);
 		}
-
-		return true;
+		
+		return _stream->PostPublish(document);
 	}
 
 	bool RtmpChunkHandler::OnAmfMetadata(const std::shared_ptr<const modules::rtmp::ChunkHeader> &header, const modules::rtmp::AmfProperty *property)

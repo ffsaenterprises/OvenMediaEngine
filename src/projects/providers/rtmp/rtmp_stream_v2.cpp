@@ -225,6 +225,11 @@ namespace pvd::rtmp
 
 	bool RtmpStreamV2::PostPublish(const modules::rtmp::AmfDocument &document)
 	{
+		if (_is_post_published)
+		{
+			return _is_post_published;
+		}
+
 		auto requested_url = GetRequestedUrl();
 
 		if (requested_url == nullptr)
