@@ -199,7 +199,7 @@ std::tuple<AccessController::VerificationResult, std::shared_ptr<const Admission
 			if (admission_webhooks->GetErrCode() == AdmissionWebhooks::ErrCode::ALLOWED ||
 				admission_webhooks->GetErrCode() == AdmissionWebhooks::ErrCode::DENIED)
 			{
-				logti("AdmissionWebhook queried %s for client %s accessing %s (Result: %s, Elapsed: %u ms)",
+				logti("AdmissionWebhook queried %s for client %s accessing %s (Result: %s, Elapsed: %" PRIu64 " ms)",
 					  control_server_url_address.CStr(),
 					  client_address->ToString(false).CStr(),
 					  request_info->GetRequestedUrl()->ToUrlString().CStr(),
@@ -208,7 +208,7 @@ std::tuple<AccessController::VerificationResult, std::shared_ptr<const Admission
 			}
 			else 
 			{
-				logtw("Failed to query AdmissionWebhook %s for client %s accessing %s (Result: %s, Elapsed: %u ms)",
+				logtw("Failed to query AdmissionWebhook %s for client %s accessing %s (Result: %s, Elapsed: %" PRIu64" ms)",
 					  control_server_url_address.CStr(),
 					  client_address->ToString(false).CStr(),
 					  request_info->GetRequestedUrl()->ToUrlString().CStr(),
@@ -245,7 +245,7 @@ std::tuple<AccessController::VerificationResult, std::shared_ptr<const Admission
 			if (admission_webhooks->GetErrCode() == AdmissionWebhooks::ErrCode::ALLOWED ||
 				admission_webhooks->GetErrCode() == AdmissionWebhooks::ErrCode::DENIED)
 			{
-				logti("AdmissionWebhook notified %s that client %s closed the connection to %s (Result: %s, Elapsed: %u ms)",
+				logti("AdmissionWebhook notified %s that client %s closed the connection to %s (Result: %s, Elapsed: %" PRIu64 " ms)",
 					  control_server_url_address.CStr(),
 					  client_address->ToString(false).CStr(),
 					  request_info->GetRequestedUrl()->ToUrlString().CStr(),
@@ -254,7 +254,7 @@ std::tuple<AccessController::VerificationResult, std::shared_ptr<const Admission
 			}
 			else 
 			{
-				logtw("Failed to notify AdmissionWebhook %s that client %s closed the connection to %s (Result: %s, Elapsed: %u ms)",
+				logtw("Failed to notify AdmissionWebhook %s that client %s closed the connection to %s (Result: %s, Elapsed: %" PRIu64 " ms)",
 					  control_server_url_address.CStr(),
 					  client_address->ToString(false).CStr(),
 					  request_info->GetRequestedUrl()->ToUrlString().CStr(),
