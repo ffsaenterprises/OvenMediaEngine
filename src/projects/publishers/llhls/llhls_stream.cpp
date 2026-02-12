@@ -167,6 +167,10 @@ bool LLHlsStream::Start()
 	auto data_track = GetFirstTrackByType(cmn::MediaType::Data);
 
 	std::shared_ptr<MediaTrack> first_video_track = nullptr, first_audio_track = nullptr;
+	first_video_track = GetFirstTrackByType(cmn::MediaType::Video);
+    first_audio_track = GetFirstTrackByType(cmn::MediaType::Audio);
+
+	_vtt_reference_track_id = first_video_track ? first_video_track->GetId() : first_audio_track ? first_audio_track->GetId() : -1;
 	for (const auto &[id, track] : _tracks)
 	{
 		if (IsSupportedMediaCodec(track->GetCodecId()) == true)
@@ -175,16 +179,6 @@ bool LLHlsStream::Start()
 			{
 				logte("LLHlsStream(%s/%s) - Failed to add packager for track(%u)", GetApplication()->GetVHostAppName().CStr(), GetName().CStr(), track->GetId());
 				return false;
-			}
-
-			// For default llhls.m3u8
-			if (first_video_track == nullptr && track->GetMediaType() == cmn::MediaType::Video)
-			{
-				first_video_track = track;
-			}
-			else if (first_audio_track == nullptr && track->GetMediaType() == cmn::MediaType::Audio)
-			{
-				first_audio_track = track;
 			}
 		}
 		else
@@ -198,8 +192,6 @@ bool LLHlsStream::Start()
 			continue;
 		}
 	}
-
-	_vtt_reference_track_id = first_video_track ? first_video_track->GetId() : first_audio_track ? first_audio_track->GetId() : -1;
 
 	// Set renditions to each chunklist writer
 	{
@@ -1524,6 +1516,11 @@ bool LLHlsStream::AddVttPackager(const std::shared_ptr<const MediaTrack> &track)
 	// Chunklist
 	auto segment_duration = std::round(static_cast<double>(_storage_config.segment_duration_ms) / 1000.0);
 	auto chunk_duration = static_cast<double>(_packager_config.chunk_duration_ms) / 1000.0;
+	auto refer_track = GetTrack(_vtt_reference_track_id);
+	if (refer_track != nullptr)
+	{
+		chunk_duration = std::round(ComputeOptimalPartDuration(refer_track)) / 1000.0;
+	}
 
 	auto chunklist = std::make_shared<LLHlsChunklist>(GetChunklistName(track->GetId()),
 													  track,

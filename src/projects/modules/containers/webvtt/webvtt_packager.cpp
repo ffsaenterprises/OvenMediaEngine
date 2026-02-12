@@ -37,7 +37,7 @@ namespace webvtt
 		return true;
 	}
 
-	bool Packager::MakeSegment(int64_t segment_number, int64_t start_time_ms, int64_t duration_ms)
+	bool Packager::MakeSegment(int64_t segment_number, int64_t start_time_ms, double duration_ms)
 	{
 		ov::String vtt_text;
 
@@ -62,7 +62,7 @@ namespace webvtt
 		return true;
 	}
 
-	bool Packager::MakePartialSegment(int64_t segment_number, int64_t partial_segment_number, int64_t start_time_ms, int64_t duration_ms)
+	bool Packager::MakePartialSegment(int64_t segment_number, int64_t partial_segment_number, int64_t start_time_ms, double duration_ms)
 	{
 		ov::String vtt_text;
 
@@ -103,10 +103,10 @@ namespace webvtt
 		return vtt_text;
 	}
 
-	const ov::String Packager::MakeCueText(int64_t start_time_ms, int64_t duration_ms, bool remove_used_frames)
+	const ov::String Packager::MakeCueText(int64_t start_time_ms, double duration_ms, bool remove_used_frames)
 	{
 		ov::String cue_text;
-		int64_t end_time_ms = start_time_ms + duration_ms;
+		int64_t end_time_ms = start_time_ms + static_cast<int64_t>(llround(duration_ms));
 		bool expired_frame = false;
 		std::unique_lock<std::shared_mutex> lock(_frames_guard);
 		for (auto it = _frames.begin(); it != _frames.end();)

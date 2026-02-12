@@ -172,8 +172,8 @@ namespace webvtt
 
 		bool AddFrame(const std::shared_ptr<WebVTTFrame> &frame);
 		
-		bool MakeSegment(int64_t segment_number, int64_t start_time_ms, int64_t duration_ms);
-		bool MakePartialSegment(int64_t segment_number, int64_t partial_segment_number, int64_t start_time_ms, int64_t duration_ms);
+		bool MakeSegment(int64_t segment_number, int64_t start_time_ms, double duration_ms);
+		bool MakePartialSegment(int64_t segment_number, int64_t partial_segment_number, int64_t start_time_ms, double duration_ms);
 		bool DeleteSegment(int64_t segment_number);
 
 		// SegmentStorage overrides
@@ -193,7 +193,7 @@ namespace webvtt
 		std::shared_ptr<PartialSegment> GetPartialSegmentInternal(int64_t segment_number, int64_t partial_segment_number) const;
 
 		const ov::String MakeVTTHeader(int64_t start_time_ms);
-		const ov::String MakeCueText(int64_t start_time_ms, int64_t duration_ms, bool remove_used_frames);
+		const ov::String MakeCueText(int64_t start_time_ms, double duration_ms, bool remove_used_frames);
 
 		// start_time_ms : frame
 		// To make ordered
