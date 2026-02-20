@@ -56,7 +56,7 @@ WebRTC input can be turned on/off for each application. As follows Setting enabl
 </Providers>
 ```
 
-<table data-header-hidden><thead><tr><th width="167"></th><th></th></tr></thead><tbody><tr><td>Timeout</td><td>The maximum duration (ms) to wait for an ICE Binding request/response before terminating the session due to connection loss.</td></tr><tr><td>FIRInterval</td><td>The interval (ms) for sending a Full Intra Request (FIR) to the sender to force the generation of an IDR Frame.</td></tr><tr><td>CrossDomain</td><td>Specifies the allowed domains for signaling requests in compliance with Cross-Origin Resource Sharing (CORS) policies.</td></tr></tbody></table>
+<table data-header-hidden><thead><tr><th width="167"></th><th></th></tr></thead><tbody><tr><td>Timeout</td><td>The maximum duration (ms) to wait for an ICE Binding request/response before terminating the session due to connection loss.</td></tr><tr><td>FIRInterval</td><td>The interval (ms) for sending a Full Intra Request (FIR) to the sender to force the generation of an IDR Frame (setting this to 0 disables the request).</td></tr><tr><td>CrossDomain</td><td>Specifies the allowed domains for signaling requests in compliance with Cross-Origin Resource Sharing (CORS) policies.</td></tr></tbody></table>
 
 
 
