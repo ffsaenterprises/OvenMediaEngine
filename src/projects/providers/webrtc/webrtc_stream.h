@@ -32,7 +32,8 @@ namespace pvd
 													const std::shared_ptr<const SessionDescription> &remote_sdp,
 													const std::shared_ptr<Certificate> &certificate, 
 													const std::shared_ptr<IcePort> &ice_port,
-													session_id_t ice_session_id);
+													session_id_t ice_session_id, 
+													const cfg::vhost::app::pvd::WebrtcProvider &config);
 		
 		explicit WebRTCStream(StreamSourceType source_type, ov::String stream_name, 
 								const std::shared_ptr<PushProvider> &provider,
@@ -40,7 +41,8 @@ namespace pvd
 								const std::shared_ptr<const SessionDescription> &remote_sdp,
 								const std::shared_ptr<Certificate> &certificate, 
 								const std::shared_ptr<IcePort> &ice_port,
-								session_id_t ice_session_id);
+								session_id_t ice_session_id, 
+								const cfg::vhost::app::pvd::WebrtcProvider &config);
 		~WebRTCStream() final;
 
 		bool Start() override;
@@ -89,6 +91,7 @@ namespace pvd
 		void OnFrame(const std::shared_ptr<MediaTrack> &track, const std::shared_ptr<MediaPacket> &media_packet);
 
 		ov::StopWatch _fir_timer;
+		int _fir_interval = 3000; // ms
 
 		ov::String _session_key;
 

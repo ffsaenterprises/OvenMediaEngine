@@ -493,10 +493,10 @@ namespace pvd
 		}
 
 		// Create Stream
+		auto webrtc_app_config = application->GetConfig().GetProviders().GetWebrtcProvider();
 		auto ice_session_id = _ice_port->IssueUniqueSessionId();
-
 		// Local Offer, Remote Answer
-		auto stream = WebRTCStream::Create(StreamSourceType::WebRTC, final_stream_name, PushProvider::GetSharedPtrAs<PushProvider>(), offer_sdp, answer_sdp, _certificate, _ice_port, ice_session_id);
+		auto stream = WebRTCStream::Create(StreamSourceType::WebRTC, final_stream_name, PushProvider::GetSharedPtrAs<PushProvider>(), offer_sdp, answer_sdp, _certificate, _ice_port, ice_session_id, webrtc_app_config);
 		if (stream == nullptr)
 		{
 			logte("Could not create %s stream in %s application", final_stream_name.CStr(), final_vhost_app_name.CStr());
@@ -759,7 +759,8 @@ namespace pvd
 		auto ice_session_id = _ice_port->IssueUniqueSessionId();
 
 		// Remote Offer, Local Answer
-		auto stream = WebRTCStream::Create(StreamSourceType::WebRTC, final_stream_name, PushProvider::GetSharedPtrAs<PushProvider>(), answer_sdp, offer_sdp, _certificate, _ice_port, ice_session_id);
+		auto webrtc_app_config = application->GetConfig().GetProviders().GetWebrtcProvider();
+		auto stream = WebRTCStream::Create(StreamSourceType::WebRTC, final_stream_name, PushProvider::GetSharedPtrAs<PushProvider>(), answer_sdp, offer_sdp, _certificate, _ice_port, ice_session_id, webrtc_app_config);
 		if (stream == nullptr)
 		{
 			logte("Could not create %s stream in %s application", final_stream_name.CStr(), final_vhost_app_name.CStr());

@@ -22,9 +22,10 @@ namespace pvd
 													   const std::shared_ptr<const SessionDescription> &remote_sdp,
 													   const std::shared_ptr<Certificate> &certificate,
 													   const std::shared_ptr<IcePort> &ice_port,
-													   session_id_t ice_session_id)
+													   session_id_t ice_session_id, 
+													   const cfg::vhost::app::pvd::WebrtcProvider &config)
 	{
-		auto stream = std::make_shared<WebRTCStream>(source_type, stream_name, provider, local_sdp, remote_sdp, certificate, ice_port, ice_session_id);
+		auto stream = std::make_shared<WebRTCStream>(source_type, stream_name, provider, local_sdp, remote_sdp, certificate, ice_port, ice_session_id, config);
 		if (stream != nullptr)
 		{
 			if (stream->Start() == false)
@@ -41,7 +42,8 @@ namespace pvd
 							   const std::shared_ptr<const SessionDescription> &remote_sdp,
 							   const std::shared_ptr<Certificate> &certificate,
 							   const std::shared_ptr<IcePort> &ice_port,
-							   session_id_t ice_session_id)
+							   session_id_t ice_session_id, 
+							   const cfg::vhost::app::pvd::WebrtcProvider &config)
 		: PushStream(source_type, stream_name, provider), Node(NodeType::Edge)
 	{
 		_local_sdp = local_sdp;
@@ -64,6 +66,8 @@ namespace pvd
 		_ice_session_id = ice_session_id;
 
 		_h264_bitstream_parser.SetConfig(H264BitstreamParser::Config{._parse_slice_type = true});
+
+		_fir_interval = config.GetFIRInterval();
 	}
 
 	WebRTCStream::~WebRTCStream()
@@ -94,8 +98,6 @@ namespace pvd
 		_rtp_rtcp = std::make_shared<RtpRtcp>(RtpRtcpInterface::GetSharedPtr());
 		_srtp_transport = std::make_shared<SrtpTransport>();
 		_dtls_transport = std::make_shared<DtlsTransport>();
-
-		auto application = std::static_pointer_cast<WebRTCApplication>(GetApplication());
 		_dtls_transport->SetLocalCertificate(_certificate);
 		_dtls_transport->StartDTLS();
 
@@ -696,7 +698,8 @@ namespace pvd
 		SendFrame(media_packet);
 
 		// Send FIR to reduce keyframe interval
-		if (_fir_timer.IsElapsed(3000) && track->GetMediaType() == cmn::MediaType::Video)
+		// _fir_interval can be 0 to disable FIR sending. The default value is 3000 ms.
+		if (_fir_interval != 0 && _fir_timer.IsElapsed(_fir_interval) && track->GetMediaType() == cmn::MediaType::Video)
 		{
 			_fir_timer.Update();
 			//_rtp_rtcp->SendPLI(first_rtp_packet->Ssrc());
