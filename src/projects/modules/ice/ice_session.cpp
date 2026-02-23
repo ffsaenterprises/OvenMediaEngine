@@ -26,7 +26,7 @@ ov::String IceSession::ToString() const
 	return ov::String::FormatString("IceSession: session_id=%u, role=%s, state=%s, local_ufrag=%s, expire_after_ms=%d, lifetime_epoch_ms=%llu, ConnectedCandidatePair=%s",
 		_session_id, 
 		_role == Role::CONTROLLED ? "CONTROLLED" : "CONTROLLING",
-		IceConnectionStateToString(_state),
+		IceConnectionStateToString(_state.load()),
 		GetLocalUfrag().CStr(),
 		_expire_after_ms,
 		_lifetime_epoch_ms, 
@@ -50,12 +50,12 @@ bool IceSession::IsExpired() const
 
 void IceSession::SetState(IceConnectionState state)
 {
-	_state = state;
+	_state.store(state);
 }
 
 IceConnectionState IceSession::GetState() const
 {
-	return _state;
+	return _state.load();
 }
 
 IceSession::Role IceSession::GetRole() const
