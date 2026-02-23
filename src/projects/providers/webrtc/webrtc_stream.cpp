@@ -13,6 +13,7 @@
 #include "modules/rtp_rtcp/rtcp_info/sender_report.h"
 #include "webrtc_application.h"
 #include "webrtc_private.h"
+#include "webrtc_provider.h"
 
 namespace pvd
 {
@@ -23,9 +24,10 @@ namespace pvd
 													   const std::shared_ptr<Certificate> &certificate,
 													   const std::shared_ptr<IcePort> &ice_port,
 													   session_id_t ice_session_id, 
+													   const std::shared_ptr<const ac::RequestInfo> &request_info,
 													   const cfg::vhost::app::pvd::WebrtcProvider &config)
 	{
-		auto stream = std::make_shared<WebRTCStream>(source_type, stream_name, provider, local_sdp, remote_sdp, certificate, ice_port, ice_session_id, config);
+		auto stream = std::make_shared<WebRTCStream>(source_type, stream_name, provider, local_sdp, remote_sdp, certificate, ice_port, ice_session_id, request_info, config);
 		if (stream != nullptr)
 		{
 			if (stream->Start() == false)
@@ -43,6 +45,7 @@ namespace pvd
 							   const std::shared_ptr<Certificate> &certificate,
 							   const std::shared_ptr<IcePort> &ice_port,
 							   session_id_t ice_session_id, 
+							   const std::shared_ptr<const ac::RequestInfo> &request_info,
 							   const cfg::vhost::app::pvd::WebrtcProvider &config)
 		: PushStream(source_type, stream_name, provider), Node(NodeType::Edge)
 	{
@@ -68,6 +71,8 @@ namespace pvd
 		_h264_bitstream_parser.SetConfig(H264BitstreamParser::Config{._parse_slice_type = true});
 
 		_fir_interval = config.GetFIRInterval();
+
+		_request_info = request_info;
 	}
 
 	WebRTCStream::~WebRTCStream()
@@ -450,33 +455,53 @@ namespace pvd
 
 	bool WebRTCStream::Stop()
 	{
-		std::lock_guard<std::shared_mutex> lock(_start_stop_lock);
+		bool result;
 
-		if (GetState() == Stream::State::STOPPED || GetState() == Stream::State::TERMINATED)
 		{
-			return true;
+			std::lock_guard<std::shared_mutex> lock(_start_stop_lock);
+
+			if (GetState() == Stream::State::STOPPED || GetState() == Stream::State::TERMINATED)
+			{
+				return true;
+			}
+
+			if (_rtp_rtcp != nullptr)
+			{
+				_rtp_rtcp->Stop();
+			}
+
+			if (_dtls_transport != nullptr)
+			{
+				_dtls_transport->Stop();
+			}
+
+			if (_srtp_transport != nullptr)
+			{
+				_srtp_transport->Stop();
+			}
+
+			_ice_port->DisconnectSession(_ice_session_id);
+
+			ov::Node::Stop();
+
+			result = pvd::Stream::Stop();
 		}
 
-		if (_rtp_rtcp != nullptr)
+		if (_request_info != nullptr)
 		{
-			_rtp_rtcp->Stop();
+			auto provider = GetProviderAs<WebRTCProvider>();
+
+			if (provider != nullptr)
+			{
+				provider->SendCloseAdmissionWebhooks(_request_info);
+			}
+			else
+			{
+				OV_ASSERT2(false);
+			}
 		}
 
-		if (_dtls_transport != nullptr)
-		{
-			_dtls_transport->Stop();
-		}
-
-		if (_srtp_transport != nullptr)
-		{
-			_srtp_transport->Stop();
-		}
-
-		_ice_port->DisconnectSession(_ice_session_id);
-
-		ov::Node::Stop();
-
-		return pvd::Stream::Stop();
+		return result;
 	}
 
 	std::shared_ptr<const SessionDescription> WebRTCStream::GetLocalSDP()

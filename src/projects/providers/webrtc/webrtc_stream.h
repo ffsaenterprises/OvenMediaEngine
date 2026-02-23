@@ -21,6 +21,8 @@
 
 #include "modules/bitstream/h264/h264_bitstream_parser.h"
 
+#include "modules/access_control/request_info.h"
+
 namespace pvd
 {
 	class WebRTCStream final : public pvd::PushStream, public RtpRtcpInterface, public ov::Node
@@ -33,6 +35,7 @@ namespace pvd
 													const std::shared_ptr<Certificate> &certificate, 
 													const std::shared_ptr<IcePort> &ice_port,
 													session_id_t ice_session_id, 
+													const std::shared_ptr<const ac::RequestInfo> &request_info,
 													const cfg::vhost::app::pvd::WebrtcProvider &config);
 		
 		explicit WebRTCStream(StreamSourceType source_type, ov::String stream_name, 
@@ -42,6 +45,7 @@ namespace pvd
 								const std::shared_ptr<Certificate> &certificate, 
 								const std::shared_ptr<IcePort> &ice_port,
 								session_id_t ice_session_id, 
+								const std::shared_ptr<const ac::RequestInfo> &request_info,
 								const cfg::vhost::app::pvd::WebrtcProvider &config);
 		~WebRTCStream() final;
 
@@ -57,6 +61,11 @@ namespace pvd
 		session_id_t GetIceSessionId() const
 		{
 			return _ice_session_id;
+		}
+
+		std::shared_ptr<const ac::RequestInfo> GetRequestInfo() const
+		{
+			return _request_info;
 		}
 
 		// ------------------------------------------
@@ -125,5 +134,7 @@ namespace pvd
 		ov::String _oven_capabilities;
 
 		session_id_t _ice_session_id = 0;
+
+		std::shared_ptr<const ac::RequestInfo> _request_info;
 	};
 }
