@@ -811,7 +811,7 @@ void LLHlsSession::ResponseData(const std::shared_ptr<http::svr::HttpExchange> &
 
 void LLHlsSession::OnPlaylistUpdated(const int32_t &track_id, const int64_t &msn, const int64_t &part)
 {
-	logtt("LLHlsSession::OnPlaylistUpdated track_id: %d, msn: %lld, part: %lld", track_id, msn, part);
+	logtt("LLHlsSession::OnPlaylistUpdated track_id: %d, msn: %" PRId64 ", part: %" PRId64 "", track_id, msn, part);
 	// Find the pending request
 
 	auto it = _pending_requests.begin();

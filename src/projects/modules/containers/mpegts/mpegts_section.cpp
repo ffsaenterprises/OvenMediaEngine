@@ -548,7 +548,7 @@ namespace mpegts
 		// Descriptor Loop Length : 16 bits
 		uint16_t descriptor_loop_length = parser->ReadBytes<uint16_t>();
 
-		logtt("Splice Info: Protocol Version: %d, Encrypted Packet: %d, Encryption Algorithm: %d, PTS Adjustment: %llu, CW Index: %d, Tier: %d, Splice Command Length: %d, Splice Command Type: %d, Descriptor Loop Length: %d",
+		logtt("Splice Info: Protocol Version: %d, Encrypted Packet: %d, Encryption Algorithm: %d, PTS Adjustment: %" PRIu64 ", CW Index: %d, Tier: %d, Splice Command Length: %d, Splice Command Type: %d, Descriptor Loop Length: %d",
 			  protocol_version, encrypted_packet, encryption_algorithm, pts_adjustment, cw_index, tier, splice_command_length, splice_command_type, descriptor_loop_length);
 
 		if (!splice_command || splice_command->GetLength() == 0)

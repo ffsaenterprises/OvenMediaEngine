@@ -1700,7 +1700,7 @@ namespace pvd
 
 			SendFrame(video_frame);
 
-			// logac("Video packet sent - stream(%s/%s) type(%d) size(%d) pts(%lld) dts(%lld)",
+			// logac("Video packet sent - stream(%s/%s) type(%d) size(%d) pts(%" PRId64 ") dts(%" PRId64 ")",
 			// 	  _vhost_app_name.CStr(),
 			// 	  _stream_name.CStr(),
 			// 	  flv_video.PacketType(),

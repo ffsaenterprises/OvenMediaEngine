@@ -285,7 +285,7 @@ void DecoderAVCxXMA::CodecThread()
 #if USE_EXTERNAL_TIMESTAMP
 				_pts_reorder_list.sort();
 				auto ordered_pts = _pts_reorder_list.front();
-				// logtt("in: %lld, out: %lld (%s), list: %d", ordered_pts, _frame->pts, (ordered_pts == _frame->pts) ? "match" : "No match", _pts_reorder_list.size());
+				// logtt("in: %" PRId64 ", out: %" PRId64 " (%s), list: %d", ordered_pts, _frame->pts, (ordered_pts == _frame->pts) ? "match" : "No match", _pts_reorder_list.size());
 				_frame->pts = ordered_pts;
 				_pts_reorder_list.pop_front();
 #endif

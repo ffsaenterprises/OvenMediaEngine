@@ -561,7 +561,7 @@ bool FilterRescaler::PushProcess(std::shared_ptr<MediaFrame> media_frame)
 	}
 	else if (ret < 0)
 	{
-		logte("An error occurred while feeding to filtergraph: format: %d, pts: %lld, queue.size: %d", src_frame->format, src_frame->pts, _input_buffer.Size());
+		logte("An error occurred while feeding to filtergraph: format: %d, pts: %" PRId64 ", queue.size: %d", src_frame->format, src_frame->pts, _input_buffer.Size());
 
 		SetState(State::ERROR);
 
