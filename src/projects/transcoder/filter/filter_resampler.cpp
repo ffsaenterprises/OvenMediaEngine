@@ -126,14 +126,11 @@ bool FilterResampler::InitializeFilterDescription()
 	return true;
 }
 
-bool FilterResampler::Configure(const std::shared_ptr<MediaTrack> &input_track, const std::shared_ptr<MediaTrack> &output_track)
+bool FilterResampler::Configure()
 {
 	int ret;
 
 	SetState(State::CREATED);
-
-	_input_track = input_track;
-	_output_track = output_track;
 
 	if (InitializeSourceFilter() == false)
 	{
@@ -195,8 +192,9 @@ bool FilterResampler::Start()
 	{
 		_kill_flag = false;
 
+		auto thread_name = ov::String::FormatString("FLT-rsmp-t%u", _output_track->GetId());
 		_thread_work = std::thread(&FilterResampler::WorkerThread, this);
-		pthread_setname_np(_thread_work.native_handle(), ov::String::FormatString("FLT-rsmp-t%u", _output_track->GetId()).CStr());
+		pthread_setname_np(_thread_work.native_handle(), thread_name.CStr());
 		if (_codec_init_event.Get() == false)
 		{
 			_kill_flag = false;
@@ -238,7 +236,7 @@ void FilterResampler::WorkerThread()
 {
 	ov::logger::ThreadHelper thread_helper;
 
-	auto result = Configure(_input_track, _output_track);
+	auto result = Configure();
 	if (_codec_init_event.Submit(result) == false)
 	{
 		return;

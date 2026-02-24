@@ -90,11 +90,11 @@ bool TranscodeFilter::CreateInternal()
 	}
 
 	auto name = ov::String::FormatString("filter_%s", cmn::GetMediaTypeString(GetInputTrack()->GetMediaType()));
-	auto urn = std::make_shared<info::ManagedQueue::URN>(
-		_input_stream_info->GetApplicationName(),
-		_input_stream_info->GetName(),
-		"trs",
-		name.LowerCaseString());
+	auto urn  = std::make_shared<info::ManagedQueue::URN>(
+		 GetInputStreamInfo()->GetApplicationName(),
+		 GetInputStreamInfo()->GetName(),
+		 "trs",
+		 name.LowerCaseString());
 	_internal->SetQueueUrn(urn);
 	_internal->SetQueuePolicy(ENABLE_QUEUE_EXCEED_WAIT, MAX_QUEUE_SIZE);
 	_internal->SetCompleteHandler(bind(&TranscodeFilter::OnComplete, this, std::placeholders::_1, std::placeholders::_2));
@@ -102,7 +102,7 @@ bool TranscodeFilter::CreateInternal()
 	_internal->SetOutputTrack(GetOutputTrack());
 
 	// Fault Injection for testing
-	if (TranscodeFaultInjector::GetInstance()->IsEnabled() && (_input_stream_info != _output_stream_info))
+	if (TranscodeFaultInjector::GetInstance()->IsEnabled() && (GetInputStreamInfo() != GetOutputStreamInfo()))
 	{
 		if (TranscodeFaultInjector::GetInstance()->IsTriggered(
 				TranscodeFaultInjector::ComponentType::FilterComponent,
@@ -290,12 +290,22 @@ cmn::Timebase TranscodeFilter::GetOutputTimebase() const
 	return _internal->GetOutputTimebase();
 }
 
-std::shared_ptr<MediaTrack>& TranscodeFilter::GetInputTrack()
+std::shared_ptr<info::Stream> TranscodeFilter::GetInputStreamInfo() const
+{
+	return _input_stream_info;
+}
+
+std::shared_ptr<info::Stream> TranscodeFilter::GetOutputStreamInfo() const
+{
+	return _output_stream_info;
+}
+
+std::shared_ptr<MediaTrack> TranscodeFilter::GetInputTrack() const
 {
 	return _input_track;
 }
 
-std::shared_ptr<MediaTrack>& TranscodeFilter::GetOutputTrack()
+std::shared_ptr<MediaTrack> TranscodeFilter::GetOutputTrack() const
 {
 	return _output_track;
 }

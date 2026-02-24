@@ -346,12 +346,10 @@ bool FilterRescaler::InitializeFpsFilter()
 	return true;
 }
 
-bool FilterRescaler::Configure(const std::shared_ptr<MediaTrack> &input_track, const std::shared_ptr<MediaTrack> &output_track)
+bool FilterRescaler::Configure()
 {
 	SetState(State::CREATED);
 
-	_input_track = input_track;
-	_output_track = output_track;
 
 	// Initialize source parameters
 	_src_width	  = _input_track->GetWidth();
@@ -439,8 +437,9 @@ bool FilterRescaler::Start()
 	{
 		_kill_flag = false;
 
+		auto thread_name = ov::String::FormatString("FLT-rscl-t%u", _output_track->GetId());
 		_thread_work = std::thread(&FilterRescaler::WorkerThread, this);
-		pthread_setname_np(_thread_work.native_handle(), ov::String::FormatString("FLT-rscl-t%u", _output_track->GetId()).CStr());
+		pthread_setname_np(_thread_work.native_handle(), thread_name.CStr());
 		
 		if (_codec_init_event.Get() == false)
 		{
@@ -663,7 +662,7 @@ void FilterRescaler::WorkerThread()
 {
 	ov::logger::ThreadHelper thread_helper;
 
-	if(_codec_init_event.Submit(Configure(_input_track, _output_track)) == false)
+	if(_codec_init_event.Submit(Configure()) == false)
 	{
 		return;
 	}
