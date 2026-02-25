@@ -14,7 +14,7 @@ services:
     - "3478:3478/tcp" # WebRTC TURN
     - "10000-10004:10000-10004/udp" # WebRTC Candidate
     environment:
-    - OME_HOST_IP=origin.dash.lionteck.com
+    - OME_HOST_IP=51.222.158.212
     - OME_ORIGIN_PORT=9000
     - OME_RTMP_PROV_PORT=1935
     - OME_SRT_PROV_PORT=9999
@@ -40,8 +40,8 @@ services:
     - "3479:3479/tcp" # WebRTC TURN
     - "10005-10009:10005-10009/udp" # WebRTC Candidate
     environment:
-    - OME_HOST_IP=origin.dash.lionteck.com
-    - DEFAULT_ORIGIN_SERVER=origin.dash.lionteck.com
+    - OME_HOST_IP=51.222.158.212
+    - DEFAULT_ORIGIN_SERVER=51.222.158.212
     - DEFAULT_ORIGIN_PORT=9000
     - OME_LLHLS_STREAM_PORT=3333 #LLHLS or WebRTC should be different if both are enabled.
     - OME_WEBRTC_SIGNALLING_PORT=3333 #LLHLS or WebRTC should be different if both are enabled.
